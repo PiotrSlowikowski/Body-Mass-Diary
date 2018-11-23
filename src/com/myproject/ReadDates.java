@@ -15,12 +15,12 @@ public class ReadDates {
 
 
         try {
-            Scanner scanner = new Scanner(new File("C:\\Users\\Piotrek\\Desktop\\Projekty\\BodyMassDiary\\src\\waga.txt"));
+            Scanner scanner = new Scanner(new File("waga.txt"));
 
             while (scanner.hasNext()) {
                 String line = scanner.next();
                 i++;
-                if (i % 2 == 1) {
+                if (i % 3 == 1) {
                     listOfDates.add(line);
                 }
             }
