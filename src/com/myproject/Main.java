@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -15,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -24,6 +24,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,17 +35,19 @@ public class Main extends Application {
     private static final ObservableList<Person> data =
             FXCollections.observableArrayList();
     private TableView<Person> table = new TableView<Person>();
-    HBox hb = new HBox();
     HBox hb2 = new HBox();
+    HBox hb3 = new HBox();
+    HBox hb1 = new HBox();
     ComboBox fileFormatComboBox = new ComboBox();
+    ComboBox heightComboBox = new ComboBox();
     TextField fileNameTextField = new TextField("waga");
     final double height = 1.74;
+
 
     public static void main(String[] args) throws Exception {
 
         ReadDates.readDates();
         ReadMass.readMass();
-        ReadAdditional.readAdditional();
         launch(args);
 
     }
@@ -54,12 +59,19 @@ public class Main extends Application {
         stage.setWidth(490);
         stage.setHeight(600);
 
-
-
         final Label label = new Label("Body weight diary");
         label.setFont(new Font("Arial", 20));
 
-        table.setEditable(true);
+        // Populating combobox
+        for (int i=150; i<=215; i++) {
+            heightComboBox.getItems().addAll(i + " cm");
+        }
+        heightComboBox.getSelectionModel().select(27);
+
+
+        final Label heightLabel = new Label("Height: ");
+        label.setTextAlignment(TextAlignment.JUSTIFY);
+        label.setFont(new Font("Arial", 20));
 
         // Date column
         TableColumn firstNameCol = new TableColumn("Date");
@@ -77,14 +89,18 @@ public class Main extends Application {
         TableColumn emailCol = new TableColumn("BMI Index");
         emailCol.setMinWidth(200);
         emailCol.setCellValueFactory(
-                new PropertyValueFactory<Person, String>("email"));
+                new PropertyValueFactory<Person, String>("BMI"));
 
         table.setItems(data);
         table.getColumns().addAll(firstNameCol, lastNameCol, emailCol);
 
 
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+
+
         // Add date textfield
-        TextField addDate = new TextField();
+        TextField addDate = new TextField(dateFormat.format(date));
         addDate.setMinWidth(130);
         addDate.setPromptText("Date (dd:mm:yyyy)");
         addDate.setMaxWidth(firstNameCol.getPrefWidth());
@@ -95,16 +111,11 @@ public class Main extends Application {
         addBodyMass.setMaxWidth(lastNameCol.getPrefWidth());
         addBodyMass.setPromptText("Body mass (kg)");
 
-        // Add additional info textfield
-        TextField addEmail = new TextField();
-        addEmail.setMaxWidth(emailCol.getPrefWidth());
-        addEmail.setPromptText("BMI");
-
 
         // Add values button
         final Button addButton = new Button("Add");
         addButton.setOnAction(event ->  {
-                addButtonMethod(event, data, addDate, addBodyMass, addEmail);
+                addButtonMethod(event, data, addDate, addBodyMass);
         });
 
         Label fileNameLabel = new Label("File name: ");
@@ -140,34 +151,32 @@ public class Main extends Application {
             stage.close();
         });
 
+
         // Fill columns with data
         for (int i = 0; i < ReadDates.readDates().size(); i++) {
-            String subbedString = (ReadMass.readMass().get(i)).substring(0,4);
-            double weightParsed = Double.parseDouble(subbedString);
-            double BMIValue = (weightParsed / Math.pow(height,2));
-            String result = String.format("%.1f", BMIValue);
+            double BMI = ((Double.parseDouble((ReadMass.readMass().get(i)).substring(0,4)))/Math.pow(height,2));
+            String BMIAsString = String.format("%.1f", BMI).replaceAll(",", ".");
 
             data.add(new Person(
                     ReadDates.readDates().get(i),
                     ReadMass.readMass().get(i),
-                    result
+                    BMIAsString
             ));
 
 
         }
 
-
-
-        hb.getChildren().addAll(addDate, addBodyMass, addEmail, addButton);
-        hb.setSpacing(3);
-
-        hb2.getChildren().addAll(fileNameLabel, fileNameTextField, fileFormatComboBox, saveButton);
+        hb2.getChildren().addAll(addDate, addBodyMass, addButton, heightLabel, heightComboBox);
         hb2.setSpacing(3);
+
+        hb3.getChildren().addAll(fileNameLabel, fileNameTextField, fileFormatComboBox, saveButton);
+        hb3.setSpacing(3);
 
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, table, hb, hb2, exitButton);
+        vbox.setPadding(new Insets(5, 0, 0, 15));
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(label, table, hb2, hb3, exitButton);
 
         ((Group) scene.getRoot()).getChildren().addAll(vbox);
 
@@ -175,19 +184,14 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-//        try {
-//            writeToXls(table, fileNameTextField);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     // Adding values to the tableView
-    public static void addButtonMethod(ActionEvent event, ObservableList<Person> data, TextField addDate, TextField addBodyMass,
-                                       TextField addEmail) {
+    public void addButtonMethod(ActionEvent event, ObservableList<Person> data, TextField addDate, TextField addBodyMass) {
 
         Pattern datePattern = Pattern.compile("^\\s*(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})\\s*$");
         Matcher dateMatcher = datePattern.matcher(addDate.getText());
+
 
         //TODO: Make dot in pattern optional
         Pattern weightPattern = Pattern.compile("[1-9][0-9]{0,2}(.\\d+)");
@@ -196,14 +200,20 @@ public class Main extends Application {
 
         if (dateMatcher.matches() && weightMatcher.matches()) {
             System.out.println("matches");
+
+            double BMICalculation = Double.parseDouble(addBodyMass.getText().toString().substring(0,2))/Math.pow((Double.parseDouble(heightComboBox.getValue().toString().substring(0,3)))/100,2);
+            String BMICalculationToString = String.format("%.1f", BMICalculation);
+            System.out.println(BMICalculationToString);
+
+
+
             data.add(new Person(
                     addDate.getText(),
-                    addBodyMass.getText() + "kg",
-
-                    "BMI"));
+                    addBodyMass.getText()+"kg",
+                    BMICalculationToString.replaceAll(",", ".")
+            ));
             addDate.clear();
             addBodyMass.clear();
-            addEmail.clear();
         } else {
             Alert emptyFirstName = new Alert(Alert.AlertType.WARNING, "Warning", ButtonType.OK);
             Window owner = ((Node) event.getTarget()).getScene().getWindow();
@@ -222,7 +232,7 @@ public class Main extends Application {
             File file = new File(fileNameTextField.getText() + fileFormatComboBox.getValue());
             writer = new BufferedWriter(new FileWriter(file));
             for (Person person : data) {
-                String text = person.getDateValue() + "\t" + person.getBodyWeight() + "\t" + person.getEmail() + "\n";
+                String text = person.getDateValue() + "\t" + person.getBodyWeight() + "\t" + person.getBMI() + "\n";
                 writer.write(text);
             }
         } catch (Exception ex) {
