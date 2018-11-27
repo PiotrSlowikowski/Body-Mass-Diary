@@ -1,12 +1,10 @@
 package com.myproject;
 
-import javafx.beans.property.SimpleStringProperty;
-
 public class Person {
 
-    private final String dateValue;
-    private final String bodyWeight;
-    private final String BMI;
+    private String dateValue;
+    private String bodyWeight;
+    private String BMI;
 
     public Person(String dateValue, String bodyWeight, String BMI) {
         this.dateValue = dateValue;
@@ -26,7 +24,15 @@ public class Person {
         return BMI;
     }
 
+    public void setDateValue(String dateValue) {
+        this.dateValue = dateValue;
+    }
 
+    public void setBodyWeight(String bodyWeight) {
+        this.bodyWeight = bodyWeight;
+    }
 
-
+    public void setBMI(String BMI) {
+        this.BMI = BMI;
+    }
 }

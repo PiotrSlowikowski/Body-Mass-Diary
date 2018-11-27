@@ -15,7 +15,7 @@ public class ReadDates {
 
 
         try {
-            Scanner scanner = new Scanner(new File("waga.txt"));
+            Scanner scanner = new Scanner(new File("weight.txt"));
 
             while (scanner.hasNext()) {
                 String line = scanner.next();
