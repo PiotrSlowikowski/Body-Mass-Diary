@@ -13,4 +13,4 @@ Program can be exitted by pushing "Exit" button.
 
 -------------------------------------------------------------------
 
-To create the application Java and JavaFX technologies were used.
+To create the application Java, JavaFX and CSS technologies were used.
