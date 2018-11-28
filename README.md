@@ -1,5 +1,7 @@
 # Body-Mass-Diary
 
+To create the application Java and JavaFX technologies were used.
+
 It's a simple body mass diary program to keep an eye on weight of your body.
 
 To add a note you have to input date to first textfield in format (day:month:year, for example: 10.10.2018)
