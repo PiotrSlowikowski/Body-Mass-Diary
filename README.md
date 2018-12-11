@@ -14,3 +14,5 @@ Program can be exitted by pushing "Exit" button.
 -------------------------------------------------------------------
 
 To create the application Java, JavaFX and CSS technologies were used.
+
+![bodymassdiarypic](https://user-images.githubusercontent.com/39311006/49796644-8de18680-fd3d-11e8-9a15-69a6e8c7836d.jpg)
